@@ -49,8 +49,8 @@ class TagViewSet(viewsets.ModelViewSet):
 
     queryset = Tag.objects.all().order_by('name')
     serializer_class = TagSerializer
-    # pagination_class = LimitOffsetPagination
-    # permission_classes = (IsAuthorizedOrReadOnly, )
+    pagination_class = None
+    http_method_names = ['get']
 
 
 class FavoriteShoppingCartBaseModelViewSet(viewsets.ModelViewSet):
@@ -112,4 +112,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
 
     queryset = Ingredient.objects.all().order_by('name')
     serializer_class = IngredientSerializer
+    pagination_class = None
+    http_method_names = ['get']
     # permission_classes = (IsAuthorizedOrReadOnly, )

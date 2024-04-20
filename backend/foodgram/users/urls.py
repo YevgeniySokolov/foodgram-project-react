@@ -6,7 +6,8 @@ from .views import (
 #    UserVerificationAPIView,
 #    GetProfileViewSet,
     SubscriptionsViewSet,
-    SubscriptionViewSet
+    SubscriptionViewSet,
+    CustomUserViewSet
 )
 
 app_name = 'users'
@@ -21,13 +22,9 @@ router_v1.register(
     r'users/(?P<author_pk>\d+)/subscribe', SubscriptionViewSet,
     basename='subscription'
 )
-# router_v1.register(r'users', GetProfileViewSet, basename='user')
+router_v1.register(r'users', CustomUserViewSet, basename='users')
 
 urlpatterns = [
-    path(
-        '',
-        include('djoser.urls')
-    ),
     path(
         'auth/',
         include('djoser.urls.authtoken')

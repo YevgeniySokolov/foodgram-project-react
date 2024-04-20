@@ -7,6 +7,21 @@ from django.core.files.base import ContentFile
 from recipes.models import Recipe, Ingredient, Tag
 
 
+class AuthorSerializer(serializers.ModelSerializer):
+    """Сериализатор ингредиентов."""
+
+    class Meta:
+        model = Ingredient
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
+
+
 class IngredientSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов."""
 
@@ -16,6 +31,19 @@ class IngredientSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'measurement_unit',
+        )
+
+
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор ингредиентов."""
+
+    class Meta:
+        model = Ingredient
+        fields = (
+            'id',
+            'name',
+            'measurement_unit',
+            'amount',
         )
 
 
@@ -46,15 +74,14 @@ class Base64ImageField(serializers.ImageField):
 class ReadRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для чтения рецептов."""
 
-    author = SlugRelatedField(
+    author = AuthorSerializer(
         read_only=True,
-        slug_field='username'
     )
-    ingredients = IngredientSerializer(
+    ingredients = IngredientInRecipeSerializer(
         read_only=True,
         many=True
     )
-    tag = TagSerializer(
+    tags = TagSerializer(
         read_only=True,
         many=True
     )
@@ -63,7 +90,7 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'id',
-            'tag',
+            'tags',
             'author',
             'ingredients',
             'is_favorited',
@@ -78,29 +105,30 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
 class WriteRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для записи рецептов."""
 
-    author = SlugRelatedField(
+    author = AuthorSerializer(
         read_only=True,
-        slug_field='username'
     )
     image = Base64ImageField(required=True, allow_null=True)
-    ingredients = SlugRelatedField(
-        queryset=Ingredient.objects.all(),
-        slug_field='slug',
+    ingredients = IngredientInRecipeSerializer(
+        read_only=True,
         many=True
     )
-    tags = SlugRelatedField(
-        queryset=Tag.objects.all(),
-        slug_field='slug',
+    tags = TagSerializer(
+        read_only=True,
         many=True
     )
 
     class Meta:
         model = Recipe
         fields = (
+            'id',
+            'tags',
+            'author',
             'ingredients',
-            'tag',
-            'image',
+            'is_favorited',
+            'is_in_shopping_cart',
             'name',
+            'image',
             'text',
             'cooking_time',
         )

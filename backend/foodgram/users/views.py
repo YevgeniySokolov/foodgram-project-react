@@ -104,10 +104,20 @@ class CustomUserViewSet(UserViewSet):
     # filter_backends = (filters.SearchFilter,)
     # search_fields = ('username',)
 
-    def get_permissions(self):
-        if self.action == "me":
-            self.permission_classes = (IsAuthenticated,)
-        return super().get_permissions()
+    @action(
+        ["get", "put", "patch", "delete"], detail=False,
+        permission_classes=(IsAuthenticated, )
+    )
+    def me(self, request, *args, **kwargs):
+        self.get_object = self.get_instance
+        if request.method == "GET":
+            return self.retrieve(request, *args, **kwargs)
+        elif request.method == "PUT":
+            return self.update(request, *args, **kwargs)
+        elif request.method == "PATCH":
+            return self.partial_update(request, *args, **kwargs)
+        elif request.method == "DELETE":
+            return self.destroy(request, *args, **kwargs)
 
     # def get_object(self, queryset=None):
     #     return self.request.user
