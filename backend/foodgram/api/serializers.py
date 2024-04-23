@@ -4,14 +4,15 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework import serializers
 from django.core.files.base import ContentFile
 
-from recipes.models import Recipe, Ingredient, Tag
+from users.models import User
+from recipes.models import Recipe, Ingredient, Tag, IngredientAmount
 
 
 class AuthorSerializer(serializers.ModelSerializer):
-    """Сериализатор ингредиентов."""
+    """Сериализатор автора."""
 
     class Meta:
-        model = Ingredient
+        model = User
         fields = (
             'email',
             'id',
@@ -37,8 +38,12 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов."""
 
+    amount = serializers.IntegerField()
+    name = serializers.SerializerMethodField()
+    measurement_unit = serializers.SerializerMethodField()
+
     class Meta:
-        model = Ingredient
+        model = IngredientAmount
         fields = (
             'id',
             'name',
@@ -110,11 +115,9 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
     )
     image = Base64ImageField(required=True, allow_null=True)
     ingredients = IngredientInRecipeSerializer(
-        read_only=True,
         many=True
     )
     tags = TagSerializer(
-        read_only=True,
         many=True
     )
 

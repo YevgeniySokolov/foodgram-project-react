@@ -2,11 +2,14 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
+from rest_framework.pagination import LimitOffsetPagination
 from django.http import HttpResponse
 from wsgiref.util import FileWrapper
 from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+# from rest_framework import filters
 
-from recipes.models import Recipe, Tag, Ingredient
+from recipes.models import Recipe, Tag, Ingredient, User
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
 # from api.filters import RecipeFilter
 from .serializers import (
@@ -23,9 +26,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """ViewSet рецептов."""
 
     queryset = Recipe.objects.all().order_by('name')
-    # permission_classes = (IsSuperUserOrAdminOrReadOnly,)
-    # filterset_class = RecipeFilter
+#    filterset_class = RecipeFilter
+    filter_backends = (DjangoFilterBackend,)
+    pagination_class = LimitOffsetPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
+    filterset_fields = ('author__id', 'tags__slug')
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -42,6 +47,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class TagViewSet(viewsets.ModelViewSet):

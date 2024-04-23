@@ -4,15 +4,15 @@ from recipes.models import Recipe
 
 
 class RecipeFilter(filters.FilterSet):
-    category = filters.CharFilter(
-        field_name='category__slug',
+    author = filters.CharFilter(
+        field_name='author__id',
         lookup_expr='icontains'
     )
-    genre = filters.CharFilter(
-        field_name='genre__slug',
+    tags = filters.CharFilter(
+        field_name='tags__slug',
         lookup_expr='icontains'
     )
 
     class Meta:
         model = Recipe
-        fields = '__all__'
+        exclude = ('image',)

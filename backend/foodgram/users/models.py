@@ -38,6 +38,9 @@ class User(AbstractUser):
         'User Role', choices=CHOICES, default=UNAUTH_USER,
         max_length=FIELD_NAMES_LEN
     )
+    is_subscribed = models.BooleanField(
+        default=False
+    )
     confirmation_code = models.TextField(
         'Confirmation code'
     )
