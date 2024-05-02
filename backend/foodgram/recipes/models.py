@@ -26,6 +26,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = 'Тэг'
         ordering = ('name',)
+        default_related_name = 'tags'
 
     def __str__(self):
         return self.slug
@@ -43,14 +44,16 @@ class Ingredient(models.Model):
         verbose_name='Единицы измерения'
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Recipe(models.Model):
     """Рецепт."""
 
     author = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
-        related_name='recipes'
+        on_delete=models.CASCADE
     )
     name = models.CharField(
         max_length=MAX_LENGTH_NAME,
@@ -65,15 +68,13 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientAmount',
-        through_fields=('recipe', 'ingredient'),
-        verbose_name='Ингредиенты',
-        related_name='recipes',
+        verbose_name='Ингредиенты'
     )
     tags = models.ManyToManyField(
         Tag,
+        through='TagRecipe',
         verbose_name='Тэги',
-        blank=True,
-        related_name='recipes',
+        blank=True
     )
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления',
@@ -88,12 +89,13 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'Рецепт'
         ordering = ['-pub_date', ]
-        constraints = [
-            models.UniqueConstraint(
-                fields=['name', 'author'],
-                name='unique_recipe',
-            ),
-        ]
+#        constraints = [
+#            models.UniqueConstraint(
+#                fields=['name', 'author'],
+#                name='unique_recipe',
+#            ),
+#        ]
+        default_related_name = 'recipes'
 
     def __str__(self):
         return f'{self.name[:TEXT_LENGTH]}'
@@ -103,8 +105,7 @@ class IngredientAmount(models.Model):
     """"Количество ингредиента."""
 
     recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, verbose_name='Рецепт',
-        related_name='recipe_ingredient'
+        Recipe, on_delete=models.CASCADE, verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient, on_delete=models.CASCADE, verbose_name='Ингредиент'
@@ -114,3 +115,21 @@ class IngredientAmount(models.Model):
         validators=[MinValueValidator(1, message='Количество должно быть '
                                       'больше 0!')]
     )
+
+    class Meta:
+        verbose_name = 'Ингредиент для рецепта'
+        default_related_name = 'ingredientamounts'
+
+
+class TagRecipe(models.Model):
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        verbose_name='Тэг')
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт')
+
+    def __str__(self):
+        return f'{self.tag} {self.recipe}'

@@ -11,7 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from recipes.models import Recipe, Tag, Ingredient, User
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
-# from api.filters import RecipeFilter
+from api.filters import RecipeFilter
 from .serializers import (
     ReadRecipeSerializer,
     WriteRecipeSerializer,
@@ -25,31 +25,28 @@ from .serializers import (
 class RecipeViewSet(viewsets.ModelViewSet):
     """ViewSet рецептов."""
 
-    queryset = Recipe.objects.all().order_by('name')
-#    filterset_class = RecipeFilter
-    filter_backends = (DjangoFilterBackend,)
+    queryset = Recipe.objects.all()
+    filterset_class = RecipeFilter
+    # filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitOffsetPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
-    filterset_fields = ('author__id', 'tags__slug')
+    # filterset_fields = ('author__id', 'tags__slug')
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return ReadRecipeSerializer
         return WriteRecipeSerializer
 
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(
-            instance,
-            data=request.data,
-            partial=True
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    # def partial_update(self, request, *args, **kwargs):
+    #     instance = self.get_object()
+    #     serializer = self.get_serializer(
+    #         instance,
+    #         data=request.data,
+    #         partial=True
+    #     )
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_update(serializer)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TagViewSet(viewsets.ModelViewSet):
