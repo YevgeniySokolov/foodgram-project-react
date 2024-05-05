@@ -72,7 +72,6 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
-        through='TagRecipe',
         verbose_name='Тэги',
         blank=True
     )
@@ -119,17 +118,3 @@ class IngredientAmount(models.Model):
     class Meta:
         verbose_name = 'Ингредиент для рецепта'
         default_related_name = 'ingredientamounts'
-
-
-class TagRecipe(models.Model):
-    tag = models.ForeignKey(
-        Tag,
-        on_delete=models.CASCADE,
-        verbose_name='Тэг')
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт')
-
-    def __str__(self):
-        return f'{self.tag} {self.recipe}'

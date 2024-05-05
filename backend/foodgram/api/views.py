@@ -27,7 +27,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
-    # filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitOffsetPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
     # filterset_fields = ('author__id', 'tags__slug')

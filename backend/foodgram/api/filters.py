@@ -10,9 +10,13 @@ class RecipeFilter(filters.FilterSet):
     )
     tags = filters.CharFilter(
         field_name='tags__slug',
-        lookup_expr='icontains'
+        lookup_expr='icontains',
+        # method='filter_tags'
     )
 
     class Meta:
         model = Recipe
         exclude = ('image',)
+
+    # def filter_tags(self, queryset, name, tags):
+    #     return queryset.filter(tags__slug__contains=tags.split(','))

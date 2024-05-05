@@ -7,7 +7,7 @@ from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 
 from users.models import User
-from recipes.models import Recipe, Ingredient, Tag, IngredientAmount, TagRecipe
+from recipes.models import Recipe, Ingredient, Tag, IngredientAmount
 
 
 class AuthorSerializer(serializers.ModelSerializer):
