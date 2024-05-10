@@ -7,11 +7,12 @@ from django.http import HttpResponse
 from wsgiref.util import FileWrapper
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-# from rest_framework import filters
+from django.http import HttpResponseBadRequest
 
 from recipes.models import Recipe, Tag, Ingredient, User
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
 from api.filters import RecipeFilter
+from api.paginations import LimitPageNumberPagination
 from .serializers import (
     ReadRecipeSerializer,
     WriteRecipeSerializer,
@@ -28,7 +29,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
     filter_backends = (DjangoFilterBackend,)
-    pagination_class = LimitOffsetPagination
+    pagination_class = LimitPageNumberPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
     # filterset_fields = ('author__id', 'tags__slug')
 
@@ -36,6 +37,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return ReadRecipeSerializer
         return WriteRecipeSerializer
+
+    # def dispatch(self, request, *args, **kwargs):
+    #     self.object = self.get_object()
+    #     if (not self.object.is_published
+    #        and self.object.author != request.user):
+    #         raise HttpResponseBadRequest('This page was not found')
+    #     return super().dispatch(request, *args, **kwargs)
 
     # def partial_update(self, request, *args, **kwargs):
     #     instance = self.get_object()

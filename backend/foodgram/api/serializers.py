@@ -4,7 +4,7 @@ import collections
 from rest_framework.relations import SlugRelatedField
 from rest_framework import serializers
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 from users.models import User
 from recipes.models import Recipe, Ingredient, Tag, IngredientAmount
@@ -40,7 +40,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор ингредиентов."""
 
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(),
+        # validators=[UniqueValidator(queryset=Ingredient.objects.all())]
+        )
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
@@ -123,6 +126,19 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
         many=True
     )
 
+    def validate(self, data):
+        errors = []
+        if not data['ingredients']:
+            errors.append('Ingredients обязательное поле.')
+        # for ingredient in data['ingredients']:
+        #     if ingredient['id'] in data['ingredients']:
+        #         errors.append('Повторяющееся поле ingredient.')
+        if not data['tags']:
+            errors.append('Tags обязательное поле.')
+        if errors:
+            raise serializers.ValidationError(errors)
+        return data
+
     class Meta:
         model = Recipe
         fields = (
@@ -133,6 +149,13 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+        # validators = [
+        #     UniqueTogetherValidator(
+        #         queryset=IngredientAmount.objects.all(),
+        #         recipe=Recipe.objects.get()
+        #         fields=['recipe', 'ingredients']
+        #     )
+        # ]
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)

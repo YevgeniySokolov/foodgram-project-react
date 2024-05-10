@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from recipes.models import Recipe
+from recipes.models import Recipe, Tag
 
 
 class RecipeFilter(filters.FilterSet):
@@ -8,15 +8,12 @@ class RecipeFilter(filters.FilterSet):
         field_name='author__id',
         lookup_expr='icontains'
     )
-    tags = filters.CharFilter(
+    tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
-        lookup_expr='icontains',
-        # method='filter_tags'
+        to_field_name='slug',
+        queryset=Tag.objects.all()
     )
 
     class Meta:
         model = Recipe
         exclude = ('image',)
-
-    # def filter_tags(self, queryset, name, tags):
-    #     return queryset.filter(tags__slug__contains=tags.split(','))

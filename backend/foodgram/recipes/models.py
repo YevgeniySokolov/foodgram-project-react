@@ -88,12 +88,12 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'Рецепт'
         ordering = ['-pub_date', ]
-#        constraints = [
-#            models.UniqueConstraint(
-#                fields=['name', 'author'],
-#                name='unique_recipe',
-#            ),
-#        ]
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=['ingredients'],
+        #         name='unique_ingredients'
+        #     ),
+        # ]
         default_related_name = 'recipes'
 
     def __str__(self):
@@ -118,3 +118,9 @@ class IngredientAmount(models.Model):
     class Meta:
         verbose_name = 'Ингредиент для рецепта'
         default_related_name = 'ingredientamounts'
+        # constraints = [
+        #     models.UniqueConstraint(
+        #         fields=['recipe', 'ingredient'],
+        #         name='unique_ingredientamount',
+        #     ),
+        # ]
