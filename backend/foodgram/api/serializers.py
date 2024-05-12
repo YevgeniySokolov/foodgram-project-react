@@ -157,55 +157,66 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
         #     )
         # ]
 
-    def update(self, instance, validated_data):
-        instance.name = validated_data.get('name', instance.name)
-        instance.image = validated_data.get('image', instance.image)
-        instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
+    def update(self, recipe, validated_data):
+        tags_ids = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        recipe.tags.clear()
+        recipe.ingredients.clear()
+        recipe.tags.set(tags_ids)
+        for ingredient in ingredients:
+            IngredientAmount.objects.create(
+                ingredient=ingredient['id'],
+                recipe=recipe,
+                amount=ingredient['amount'])
+        return super().update(recipe, validated_data)
+        # instance.name = validated_data.get('name', instance.name)
+        # instance.image = validated_data.get('image', instance.image)
+        # instance.text = validated_data.get('text', instance.text)
+        # instance.cooking_time = validated_data.get(
+        #     'cooking_time', instance.cooking_time
+        # )
 
-        if 'ingredients' not in validated_data:
-            if 'tags' not in validated_data:
-                instance.save()
-                return instance
-            else:
-                tags_data = validated_data.pop('tags')
-                lst = []
-                for tag in tags_data:
-                    current_tag, status = Tag.objects.get_or_create(
-                        **tag
-                    )
-                    lst.append(current_tag)
-                instance.tags.set(lst)
+        # if 'ingredients' not in validated_data:
+        #     if 'tags' not in validated_data:
+        #         instance.save()
+        #         return instance
+        #     else:
+        #         tags_data = validated_data.pop('tags')
+        #         lst = []
+        #         for tag in tags_data:
+        #             current_tag, status = Tag.objects.get_or_create(
+        #                 **tag
+        #             )
+        #             lst.append(current_tag)
+        #         instance.tags.set(lst)
 
-                instance.save()
-                return instance
+        #         instance.save()
+        #         return instance
 
-        ingredients_data = validated_data.pop('ingredients')
-        lst = []
-        for ingredient in ingredients_data:
-            current_ingredient, status = Ingredient.objects.get_or_create(
-                **ingredient
-            )
-            lst.append(current_ingredient)
-        instance.ingredients.set(lst)
+        # ingredients_data = validated_data.pop('ingredients')
+        # lst = []
+        # for ingredient in ingredients_data:
+        #     current_ingredient, status = Ingredient.objects.get_or_create(
+        #         **ingredient
+        #     )
+        #     lst.append(current_ingredient)
+        # instance.ingredients.set(lst)
 
-        if 'tags' not in validated_data:
-            instance.save()
-            return instance
+        # if 'tags' not in validated_data:
+        #     instance.save()
+        #     return instance
 
-        tags_data = validated_data.pop('tags')
-        lst = []
-        for tag in tags_data:
-            current_tag, status = Tag.objects.get_or_create(
-                **tag
-            )
-            lst.append(current_tag)
-        instance.tags.set(lst)
+        # tags_data = validated_data.pop('tags')
+        # lst = []
+        # for tag in tags_data:
+        #     current_tag, status = Tag.objects.get_or_create(
+        #         **tag
+        #     )
+        #     lst.append(current_tag)
+        # instance.tags.set(lst)
 
-        instance.save()
-        return instance
+        # instance.save()
+        # return instance
 
     def create(self, validated_data, **kwargs):
         tags_ids = validated_data.pop('tags')
