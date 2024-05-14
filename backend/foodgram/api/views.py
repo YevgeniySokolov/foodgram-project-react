@@ -31,12 +31,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitPageNumberPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
-    # filterset_fields = ('author__id', 'tags__slug')
+    # permission_classes = (IsAuthenticated, )
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return ReadRecipeSerializer
         return WriteRecipeSerializer
+
+    def get_permissions(self):
+        if self.action == "create":
+            self.permission_classes = (IsAuthenticated, )
+        return super().get_permissions()
 
     # def dispatch(self, request, *args, **kwargs):
     #     self.object = self.get_object()

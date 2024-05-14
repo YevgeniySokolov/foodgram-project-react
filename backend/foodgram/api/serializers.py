@@ -128,13 +128,18 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         errors = []
+        ingredients_ids = []
         if not data['ingredients']:
             errors.append('Ingredients обязательное поле.')
-        # for ingredient in data['ingredients']:
-        #     if ingredient['id'] in data['ingredients']:
-        #         errors.append('Повторяющееся поле ingredient.')
+        # UniqueValidator(queryset=Ingredient.objects.all())
+        for ingredient in data['ingredients']:
+            ingredients_ids.append(ingredient['id'])
+        if len(ingredients_ids) != len(set(ingredients_ids)):
+            errors.append('Повторяющееся поле ingredient.')
         if not data['tags']:
             errors.append('Tags обязательное поле.')
+        if len(data['tags']) != len(set(data['tags'])):
+            errors.append('Повторяющееся поле ingredient.')
         if errors:
             raise serializers.ValidationError(errors)
         return data
@@ -152,8 +157,13 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
         # validators = [
         #     UniqueTogetherValidator(
         #         queryset=IngredientAmount.objects.all(),
-        #         recipe=Recipe.objects.get()
+        #         recipe=Recipe.objects.get(),
         #         fields=['recipe', 'ingredients']
+        #     )
+        # ]
+        # validators = [
+        #     UniqueValidator(
+        #         queryset=Ingredient.objects.all()
         #     )
         # ]
 
@@ -169,54 +179,6 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
                 recipe=recipe,
                 amount=ingredient['amount'])
         return super().update(recipe, validated_data)
-        # instance.name = validated_data.get('name', instance.name)
-        # instance.image = validated_data.get('image', instance.image)
-        # instance.text = validated_data.get('text', instance.text)
-        # instance.cooking_time = validated_data.get(
-        #     'cooking_time', instance.cooking_time
-        # )
-
-        # if 'ingredients' not in validated_data:
-        #     if 'tags' not in validated_data:
-        #         instance.save()
-        #         return instance
-        #     else:
-        #         tags_data = validated_data.pop('tags')
-        #         lst = []
-        #         for tag in tags_data:
-        #             current_tag, status = Tag.objects.get_or_create(
-        #                 **tag
-        #             )
-        #             lst.append(current_tag)
-        #         instance.tags.set(lst)
-
-        #         instance.save()
-        #         return instance
-
-        # ingredients_data = validated_data.pop('ingredients')
-        # lst = []
-        # for ingredient in ingredients_data:
-        #     current_ingredient, status = Ingredient.objects.get_or_create(
-        #         **ingredient
-        #     )
-        #     lst.append(current_ingredient)
-        # instance.ingredients.set(lst)
-
-        # if 'tags' not in validated_data:
-        #     instance.save()
-        #     return instance
-
-        # tags_data = validated_data.pop('tags')
-        # lst = []
-        # for tag in tags_data:
-        #     current_tag, status = Tag.objects.get_or_create(
-        #         **tag
-        #     )
-        #     lst.append(current_tag)
-        # instance.tags.set(lst)
-
-        # instance.save()
-        # return instance
 
     def create(self, validated_data, **kwargs):
         tags_ids = validated_data.pop('tags')

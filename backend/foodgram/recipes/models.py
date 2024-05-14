@@ -118,9 +118,9 @@ class IngredientAmount(models.Model):
     class Meta:
         verbose_name = 'Ингредиент для рецепта'
         default_related_name = 'ingredientamounts'
-        # constraints = [
-        #     models.UniqueConstraint(
-        #         fields=['recipe', 'ingredient'],
-        #         name='unique_ingredientamount',
-        #     ),
-        # ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'],
+                name='unique_ingredientamount',
+            ),
+        ]
