@@ -119,30 +119,30 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
 
     image = Base64ImageField(required=True, allow_null=True)
     ingredients = IngredientInRecipeSerializer(
-        many=True
+        many=True,
+        required=True,
     )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
-        many=True
+        many=True,
+        required=True,
     )
 
     def validate(self, data):
-        errors = []
+        ingredients = data.get('ingredients')
+        tags = data.get('tags')
+        if not ingredients:
+            raise serializers.ValidationError('Ingredients обязательное поле.')
         ingredients_ids = []
-        if not data['ingredients']:
-            errors.append('Ingredients обязательное поле.')
-        # UniqueValidator(queryset=Ingredient.objects.all())
         for ingredient in data['ingredients']:
             ingredients_ids.append(ingredient['id'])
         if len(ingredients_ids) != len(set(ingredients_ids)):
-            errors.append('Повторяющееся поле ingredient.')
-        if not data['tags']:
-            errors.append('Tags обязательное поле.')
+            raise serializers.ValidationError('Повторяющееся поле ingredient.')
+        if not tags:
+            raise serializers.ValidationError('Tags обязательное поле.')
         if len(data['tags']) != len(set(data['tags'])):
-            errors.append('Повторяющееся поле ingredient.')
-        if errors:
-            raise serializers.ValidationError(errors)
-        return data
+            raise serializers.ValidationError('Повторяющееся поле ingredient.')
+        return super().validate(data)
 
     class Meta:
         model = Recipe

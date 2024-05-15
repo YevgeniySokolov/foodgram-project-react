@@ -41,9 +41,7 @@ class SubscriptionsViewSet(viewsets.ModelViewSet):
         ).all()
 
 
-class SubscriptionViewSet(mixins.CreateModelMixin,
-                          mixins.DestroyModelMixin,
-                          viewsets.GenericViewSet):
+class SubscriptionViewSet(viewsets.ModelViewSet):
     """ViewSet подписки."""
 
     serializer_class = SubscriptionSerializer

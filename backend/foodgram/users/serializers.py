@@ -115,28 +115,22 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор подписки."""
 
-    subscriber = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field="username",
-        default=serializers.CurrentUserDefault(),
-    )
-    author = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field="username",
-    )
+    # subscriber = serializers.SlugRelatedField(
+    #     queryset=User.objects.all(),
+    #     slug_field="username",
+    #     default=serializers.CurrentUserDefault(),
+    # )
+    # author = serializers.SlugRelatedField(
+    #     queryset=User.objects.all(),
+    #     slug_field="username",
+    # )
     recipes = ReadRecipeSerializer(
         read_only=True,
         many=True
     )
-
-    def validate_author(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Заполните обязательное поле "author".')
-        if value == self.context["request"].user:
-            raise serializers.ValidationError(
-                'Нет возможности подписаться на самого себя.')
-        return value
+    recipes_count = serializers.IntegerField(
+        read_only=True
+    )
 
     class Meta:
         model = User
@@ -156,6 +150,17 @@ class SubscriptionSerializer(serializers.ModelSerializer):
                 fields=['subscriber', 'author']
             )
         ]
+
+    def validate_author(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Заполните обязательное поле "author".')
+        if value == self.context["request"].user:
+            raise serializers.ValidationError(
+                'Нет возможности подписаться на самого себя.')
+        return value
+
+    # def get_recipes_count(self, obj):
 
 
 # class UserVerificationSerializer(serializers.Serializer):

@@ -13,6 +13,7 @@ from recipes.models import Recipe, Tag, Ingredient, User
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
 from api.filters import RecipeFilter
 from api.paginations import LimitPageNumberPagination
+from .permissions import UserIsAuthor
 from .serializers import (
     ReadRecipeSerializer,
     WriteRecipeSerializer,
@@ -41,6 +42,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == "create":
             self.permission_classes = (IsAuthenticated, )
+        if self.action == "partial_update":
+            self.permission_classes = (UserIsAuthor, )
         return super().get_permissions()
 
     # def dispatch(self, request, *args, **kwargs):
