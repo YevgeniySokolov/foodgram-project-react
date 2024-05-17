@@ -6,7 +6,6 @@ from .views import (
 #    UserVerificationAPIView,
 #    GetProfileViewSet,
     SubscriptionsViewSet,
-    SubscriptionViewSet,
     CustomUserViewSet
 )
 
@@ -18,10 +17,10 @@ router_v1.register(
     'users/subscriptions/', SubscriptionsViewSet,
     basename='subscriptions'
 )
-router_v1.register(
-    r'users/(?P<author_pk>\d+)/subscribe', SubscriptionViewSet,
-    basename='subscription'
-)
+# router_v1.register(
+#     r'users/(?P<author_pk>\d+)/subscribe', SubscriptionViewSet,
+#     basename='subscription'
+# )
 router_v1.register(r'users', CustomUserViewSet, basename='users')
 
 urlpatterns = [

@@ -83,6 +83,19 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
+class ReadShortRecipeSerializer(serializers.ModelSerializer):
+    """Сериализатор для чтения рецептов в коротком варианте."""
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+
+
 class ReadRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для чтения рецептов."""
 

@@ -9,7 +9,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from .models import Subscription
 from .validators import prohibited_username_validator, regex_validator
 from foodgram.constants import FIELD_NAMES_LEN, FIELD_EMAIL_LEN
-from api.serializers import ReadRecipeSerializer
+from api.serializers import ReadShortRecipeSerializer, ReadRecipeSerializer
 
 User = get_user_model()
 
@@ -115,22 +115,9 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор подписки."""
 
-    # subscriber = serializers.SlugRelatedField(
-    #     queryset=User.objects.all(),
-    #     slug_field="username",
-    #     default=serializers.CurrentUserDefault(),
-    # )
-    # author = serializers.SlugRelatedField(
-    #     queryset=User.objects.all(),
-    #     slug_field="username",
-    # )
-    recipes = ReadRecipeSerializer(
-        read_only=True,
-        many=True
-    )
-    recipes_count = serializers.IntegerField(
-        read_only=True
-    )
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -151,21 +138,32 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             )
         ]
 
-    def validate_author(self, value):
-        if not value:
-            raise serializers.ValidationError(
-                'Заполните обязательное поле "author".')
-        if value == self.context["request"].user:
-            raise serializers.ValidationError(
-                'Нет возможности подписаться на самого себя.')
-        return value
+    def get_recipes_count(self, author):
+        return author.recipes.count()
 
-    # def get_recipes_count(self, obj):
+    def get_recipes(self, author):
+        request = self.context.get('request')
+        recipes_limit = request.GET.get('recipes_limit')
+        recipes = author.recipes.all()
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        serializer = ReadShortRecipeSerializer(recipes, many=True)
+        return serializer.data
 
+    def get_is_subscribed(self, author):
+        subscriber = self.context.get('request').user
+        return Subscription.objects.filter(
+            subscriber=subscriber, author=author
+        ).exists()
 
-# class UserVerificationSerializer(serializers.Serializer):
-#    username = serializers.CharField()
-#    confirmation_code = serializers.CharField()
+    # def validate_author(self, value):
+    #     if not value:
+    #         raise serializers.ValidationError(
+    #             'Заполните обязательное поле "author".')
+    #     if value == self.context["request"].user:
+    #         raise serializers.ValidationError(
+    #             'Нет возможности подписаться на самого себя.')
+    #     return value
 
 
 # class MeUserSerializer(serializers.ModelSerializer):

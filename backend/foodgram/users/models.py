@@ -69,8 +69,8 @@ class Subscription(models.Model):
     """Подписка."""
 
     subscriber = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='subscriber'
+        User, on_delete=models.CASCADE, related_name='subscribers'
     )
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='author'
+        User, on_delete=models.CASCADE, related_name='authors'
     )
