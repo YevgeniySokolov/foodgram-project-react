@@ -86,12 +86,29 @@ class CustomUserViewSet(UserViewSet):
        methods=['post', 'delete'], pagination_class=None,
     )
     def subscribe(self, request, id):
+        if not User.objects.filter(pk=id).exists():
+            return Response(
+                {'error': f'Пользователя с ID:{id} не существует'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         author = User.objects.get(pk=id)
         subscriber = request.user
         if request.method == 'POST':
+            if subscriber == author:
+                return Response(
+                    dict(error='Нельзя подписываться на самого себя'),
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            if Subscription.objects.filter(
+                subscriber=subscriber, author=author
+            ).exists():
+                return Response(
+                    dict(error='Уже подписаны на этого пользователя'),
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             Subscription.objects.create(subscriber=subscriber, author=author)
             serializer = SubscriptionSerializer(
-                author, context=dict(request=request)
+                author, context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
