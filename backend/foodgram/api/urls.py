@@ -14,10 +14,6 @@ app_name = 'api'
 router_v1 = routers.DefaultRouter()
 router_v1.register(r'tags', TagViewSet, basename='tag')
 router_v1.register(
-    r'recipes/(?P<recipe_pk>\d+)/favorite', FavoriteViewSet,
-    basename='favorite'
-)
-router_v1.register(
     r'recipes/download_shopping_cart',
     DownloadShoppingCartViewSet, basename='download_shopping_cart'
 )
