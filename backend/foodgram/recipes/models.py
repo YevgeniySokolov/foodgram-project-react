@@ -124,3 +124,22 @@ class IngredientAmount(models.Model):
                 name='unique_ingredientamount',
             ),
         ]
+
+
+class ShoppingCart(models.Model):
+    """"Корзина покупок."""
+
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, verbose_name='Рецепт'
+    )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='Пользователь'
+    )
+
+    class Meta:
+        default_related_name = 'shoppingcarts'
+        verbose_name = 'Корзина покупок'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f'{self.user} добавил: {self.recipe}'

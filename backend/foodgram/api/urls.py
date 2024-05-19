@@ -5,7 +5,6 @@ from api.views import (
     TagViewSet,
     RecipeViewSet,
     FavoriteViewSet,
-    ShoppingCartViewSet,
     IngredientViewSet,
     DownloadShoppingCartViewSet
 )
@@ -21,10 +20,6 @@ router_v1.register(
 router_v1.register(
     r'recipes/download_shopping_cart',
     DownloadShoppingCartViewSet, basename='download_shopping_cart'
-)
-router_v1.register(
-    r'recipes/(?P<recipe_pk>\d+)/shopping_cart',
-    ShoppingCartViewSet, basename='shopping_cart'
 )
 router_v1.register(r'recipes', RecipeViewSet, basename='recipe')
 router_v1.register(r'ingredients', IngredientViewSet, basename='ingredient')

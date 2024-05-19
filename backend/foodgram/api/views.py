@@ -9,12 +9,13 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from django.http import HttpResponseBadRequest
 
-from recipes.models import Recipe, Tag, Ingredient, User
+from recipes.models import Recipe, Tag, Ingredient, ShoppingCart
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
 from api.filters import RecipeFilter
 from api.paginations import LimitPageNumberPagination
 from .permissions import UserIsAuthor
 from .serializers import (
+    ReadShortRecipeSerializer,
     ReadRecipeSerializer,
     WriteRecipeSerializer,
     TagSerializer,
@@ -46,23 +47,57 @@ class RecipeViewSet(viewsets.ModelViewSet):
             self.permission_classes = (UserIsAuthor, )
         return super().get_permissions()
 
-    # def dispatch(self, request, *args, **kwargs):
-    #     self.object = self.get_object()
-    #     if (not self.object.is_published
-    #        and self.object.author != request.user):
-    #         raise HttpResponseBadRequest('This page was not found')
-    #     return super().dispatch(request, *args, **kwargs)
+    def create_object(self, model, user, pk):
+        if not Recipe.objects.filter(id=pk).exists():
+            return Response(
+                {'errors': 'Рецепт не существует.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if model.objects.filter(user=user, recipe__id=pk).exists():
+            return Response(
+                {'errors': 'Рецепт уже в списке.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        recipe = Recipe.objects.get(pk=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = ReadShortRecipeSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    # def partial_update(self, request, *args, **kwargs):
-    #     instance = self.get_object()
-    #     serializer = self.get_serializer(
-    #         instance,
-    #         data=request.data,
-    #         partial=True
+    def delete_object(self, model, user, pk):
+        if not Recipe.objects.filter(id=pk).exists():
+            return Response(
+                {'errors': 'Рецепт не существует.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        object = model.objects.filter(user=user, recipe__id=pk)
+        if object.exists():
+            object.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'errors': 'Рецепт был удален ранее.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # @action(detail=True, methods=('POST', 'DELETE'),)
+    # def favorite(self, request, pk=None):
+    #     if request.method == 'POST':
+    #         return self.create_connection(
+    #             FavoriteRecipe, request.user, pk
+    #         )
+    #     return self.delete_connection(
+    #         FavoriteRecipe, request.user, pk
     #     )
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_update(serializer)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=('POST', 'DELETE'),
+            permission_classes=(IsAuthenticated, ),)
+    def shopping_cart(self, request, pk=None):
+        if request.method == 'POST':
+            return self.create_object(
+                ShoppingCart, request.user, pk
+            )
+        return self.delete_object(
+            ShoppingCart, request.user, pk
+        )
 
 
 class TagViewSet(viewsets.ModelViewSet):
