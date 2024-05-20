@@ -46,7 +46,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action == "partial_update":
             self.permission_classes = (UserIsAuthor, )
         if self.action == "destroy":
-            self.permission_classes = (IsAuthenticated, )
+            self.permission_classes = (UserIsAuthor, )
         return super().get_permissions()
 
     def create_object(self, model, user, pk):
