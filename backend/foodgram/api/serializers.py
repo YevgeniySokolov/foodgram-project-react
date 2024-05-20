@@ -1,10 +1,10 @@
 import base64
-import collections
 
 from rest_framework import serializers
 from django.core.files.base import ContentFile
+from djoser.serializers import UserSerializer
 
-from users.models import User
+from users.models import User, Subscription
 from recipes.models import (
     Recipe,
     Ingredient,
@@ -15,8 +15,10 @@ from recipes.models import (
     )
 
 
-class AuthorSerializer(serializers.ModelSerializer):
+class AuthorSerializer(UserSerializer):
     """Сериализатор автора."""
+
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -28,6 +30,14 @@ class AuthorSerializer(serializers.ModelSerializer):
             'last_name',
             'is_subscribed'
         )
+
+    def get_is_subscribed(self, author):
+        subscriber = self.context.get('request').user
+        if not subscriber.is_authenticated:
+            return False
+        return Subscription.objects.filter(
+            subscriber=subscriber, author=author
+        ).exists()
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -193,18 +203,6 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=IngredientAmount.objects.all(),
-        #         recipe=Recipe.objects.get(),
-        #         fields=['recipe', 'ingredients']
-        #     )
-        # ]
-        # validators = [
-        #     UniqueValidator(
-        #         queryset=Ingredient.objects.all()
-        #     )
-        # ]
 
     def update(self, recipe, validated_data):
         tags_ids = validated_data.pop('tags')

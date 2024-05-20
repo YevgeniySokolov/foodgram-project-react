@@ -12,18 +12,12 @@ from .validators import prohibited_username_validator, regex_validator
 class User(AbstractUser):
     """Пользователь."""
 
-    UNAUTH_USER = 'unauth_user'
-    AUTH_USER = 'auth_user'
-    ADMIN = 'admin'
-    CHOICES = [
-        (UNAUTH_USER, 'unauth_user'),
-        (AUTH_USER, 'auth_user'),
-        (ADMIN, 'admin'),
-    ]
-
     username = models.CharField(
         'User Name', unique=True, blank=False, max_length=FIELD_NAMES_LEN,
         validators=[regex_validator, prohibited_username_validator]
+    )
+    password = models.CharField(
+        max_length=FIELD_NAMES_LEN,
     )
     email = models.EmailField(
         'E-mail address', unique=True, blank=False, max_length=FIELD_EMAIL_LEN
@@ -34,24 +28,6 @@ class User(AbstractUser):
     last_name = models.CharField(
         'Last Name', blank=True, max_length=FIELD_NAMES_LEN
     )
-    role = models.CharField(
-        'User Role', choices=CHOICES, default=UNAUTH_USER,
-        max_length=FIELD_NAMES_LEN
-    )
-    is_subscribed = models.BooleanField(
-        default=False
-    )
-    confirmation_code = models.TextField(
-        'Confirmation code'
-    )
-
-    @property
-    def is_admin(self):
-        return self.role == self.ADMIN
-
-    @property
-    def is_auth_user(self):
-        return self.role == self.AUTH_USER
 
     class Meta:
         constraints = [
