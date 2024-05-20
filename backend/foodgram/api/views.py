@@ -15,7 +15,7 @@ from recipes.models import (
     IngredientAmount
 )
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
-from api.filters import RecipeFilter
+from api.filters import RecipeFilter, IngredientFilter
 from api.paginations import LimitPageNumberPagination
 from .permissions import UserIsAuthor
 from .serializers import (
@@ -133,26 +133,6 @@ class TagViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
 
 
-# class DownloadShoppingCartViewSet(viewsets.ModelViewSet):
-#     """ViewSet списка покупок в PDF."""
-
-#     queryset = Recipe.objects.filter(
-#         is_in_shopping_cart=True
-#     ).all().order_by('name')
-
-#     @action(detail=True,
-#             permission_classes=(IsAuthenticated, ),
-#             methods=['get'],
-#             url_path=DOWNLOAD_SHOPPING_CART)
-#     def fetch_report(self, request, *args, **kwargs):
-#         short_report = open("PdfFile", 'rb')
-#         response = HttpResponse(
-#             FileWrapper(short_report),
-#             content_type='application/pdf'
-#         )
-#         return response
-
-
 class IngredientViewSet(viewsets.ModelViewSet):
     """ViewSet ингредиента."""
 
@@ -160,4 +140,5 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     pagination_class = None
     http_method_names = ['get']
-    # permission_classes = (IsAuthorizedOrReadOnly, )
+    filter_backends = (IngredientFilter,)
+    search_fields = ('^name',)
