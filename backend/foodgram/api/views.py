@@ -11,7 +11,8 @@ from recipes.models import (
     Recipe,
     Tag, Ingredient,
     ShoppingCart,
-    FavoriteRecipe
+    FavoriteRecipe,
+    IngredientAmount
 )
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
 from api.filters import RecipeFilter
@@ -102,25 +103,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ShoppingCart, request.user, pk
         )
 
-    # @action(detail=False)
-    # def download_shopping_cart(self, request):
-    #     ingredients = IngredientAmount.objects.filter(
-    #         recipe__shoppingcarts__user=request.user
-    #     ).values(
-    #         'ingredient__name', 'ingredient__measurement_unit'
-    #     ).annotate(amount=Sum('amount')).order_by('ingredient__name')
-    #     output = ('Список покупок\n\n')
-    #     output += '\n'.join(
-    #         [f'{ingredient["ingredient__name"]}'
-    #          f' ({ingredient["ingredient__measurement_unit"]})'
-    #          f' - {ingredient["amount"]}'
-    #          for ingredient in ingredients
-    #          ]
-    #     )
-    #     filename = f'{request.user.username}_shopping_list.txt'
-    #     response = HttpResponse(output, content_type='text/plain')
-    #     response['Content-Disposition'] = f'attachment; filename={filename}'
-    #     return response
+    @action(detail=False)
+    def download_shopping_cart(self, request):
+        ingredients = IngredientAmount.objects.filter(
+            recipe__shoppingcarts__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount')).order_by('ingredient__name')
+        output = ('Список покупок\n\n')
+        output += '\n'.join(
+            [f'{ingredient["ingredient__name"]}'
+             f' ({ingredient["ingredient__measurement_unit"]})'
+             f' - {ingredient["amount"]}'
+             for ingredient in ingredients
+             ]
+        )
+        filename = 'shopping_list.txt'
+        response = HttpResponse(output, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        return response
 
 
 class TagViewSet(viewsets.ModelViewSet):
