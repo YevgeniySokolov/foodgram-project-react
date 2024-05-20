@@ -80,8 +80,6 @@ class Recipe(models.Model):
         validators=[MinValueValidator(1, message='Время приготовления не '
                                       'может быть меньше 1 минуты!')]
     )
-    is_favorited = models.BooleanField(default=False)
-    is_in_shopping_cart = models.BooleanField(default=False)
     pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
 

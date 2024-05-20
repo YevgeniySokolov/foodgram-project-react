@@ -156,34 +156,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             subscriber=subscriber, author=author
         ).exists()
 
-    # def validate_author(self, value):
-    #     if not value:
-    #         raise serializers.ValidationError(
-    #             'Заполните обязательное поле "author".')
-    #     if value == self.context["request"].user:
-    #         raise serializers.ValidationError(
-    #             'Нет возможности подписаться на самого себя.')
-    #     return value
-
-
-# class MeUserSerializer(serializers.ModelSerializer):
-#
-#    is_subscribed = serializers.SerializerMethodField()
-#
-#    class Meta:
-#        model = User
-#        fields = (
-#            'email',
-#            'id',
-#            'username',
-#            'first_name',
-#            'last_name',
-#            'is_subscribed',
-#        )
-#
-#    def get_is_subscribed(self, obj):
-#        return False
-
 
 class SetPasswordSerializer(serializers.Serializer):
     """Сериализатор изменения пароля."""
@@ -193,7 +165,3 @@ class SetPasswordSerializer(serializers.Serializer):
 
     class Meta:
         model = User
-
-
-# class GetProfileSerializer(CustomUserSerializer):
-#    """Сериализатор профиля пользователя."""

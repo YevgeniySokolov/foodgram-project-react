@@ -1,13 +1,18 @@
 import base64
 import collections
 
-from rest_framework.relations import SlugRelatedField
 from rest_framework import serializers
 from django.core.files.base import ContentFile
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 from users.models import User
-from recipes.models import Recipe, Ingredient, Tag, IngredientAmount
+from recipes.models import (
+    Recipe,
+    Ingredient,
+    Tag,
+    IngredientAmount,
+    FavoriteRecipe,
+    ShoppingCart
+    )
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -96,6 +101,15 @@ class ReadShortRecipeSerializer(serializers.ModelSerializer):
         )
 
 
+def check_recipe(self, recipe, checking_model):
+    user = self.context['request'].user
+    if not user.is_authenticated:
+        return False
+    return checking_model.objects.filter(
+        user=user, recipe=recipe
+    ).exists()
+
+
 class ReadRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для чтения рецептов."""
 
@@ -109,6 +123,12 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(
         read_only=True,
         many=True
+    )
+    is_in_shopping_cart = serializers.SerializerMethodField(
+        read_only=True
+    )
+    is_favorited = serializers.SerializerMethodField(
+        read_only=True
     )
 
     class Meta:
@@ -125,6 +145,12 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
         )
+
+    def get_is_in_shopping_cart(self, recipe):
+        return check_recipe(self, recipe, ShoppingCart)
+
+    def get_is_favorited(self, recipe):
+        return check_recipe(self, recipe, FavoriteRecipe)
 
 
 class WriteRecipeSerializer(serializers.ModelSerializer):

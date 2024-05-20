@@ -1,26 +1,14 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from .views import (
-#    UserRegistrationAPIView,
-#    UserVerificationAPIView,
-#    GetProfileViewSet,
-    SubscriptionsViewSet,
     CustomUserViewSet
 )
 
 app_name = 'users'
 
-router_v1 = DefaultRouter()
+router_v1 = SimpleRouter()
 
-router_v1.register(
-    'users/subscriptions/', SubscriptionsViewSet,
-    basename='subscriptions'
-)
-# router_v1.register(
-#     r'users/(?P<author_pk>\d+)/subscribe', SubscriptionViewSet,
-#     basename='subscription'
-# )
 router_v1.register(r'users', CustomUserViewSet, basename='users')
 
 urlpatterns = [

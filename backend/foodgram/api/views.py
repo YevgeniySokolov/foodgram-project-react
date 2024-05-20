@@ -1,16 +1,18 @@
 from django.db.models import Sum
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
-from rest_framework.pagination import LimitOffsetPagination
 from django.http import HttpResponse
 from wsgiref.util import FileWrapper
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from django.http import HttpResponseBadRequest
 
-from recipes.models import Recipe, Tag, Ingredient, ShoppingCart, IngredientAmount, FavoriteRecipe
+from recipes.models import (
+    Recipe,
+    Tag, Ingredient,
+    ShoppingCart,
+    FavoriteRecipe
+)
 from foodgram.constants import DOWNLOAD_SHOPPING_CART
 from api.filters import RecipeFilter
 from api.paginations import LimitPageNumberPagination
@@ -20,8 +22,6 @@ from .serializers import (
     ReadRecipeSerializer,
     WriteRecipeSerializer,
     TagSerializer,
-    FavoriteSerializer,
-    ShoppingCartSerializer,
     IngredientSerializer
 )
 
@@ -34,7 +34,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitPageNumberPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
-    # permission_classes = (IsAuthenticated, )
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -46,6 +45,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             self.permission_classes = (IsAuthenticated, )
         if self.action == "partial_update":
             self.permission_classes = (UserIsAuthor, )
+        if self.action == "destroy":
+            self.permission_classes = (IsAuthenticated, )
         return super().get_permissions()
 
     def create_object(self, model, user, pk):
@@ -131,58 +132,24 @@ class TagViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
 
 
-class FavoriteShoppingCartBaseModelViewSet(viewsets.ModelViewSet):
-    """Базовый ViewSet избранного рецепта и списка покупок."""
+# class DownloadShoppingCartViewSet(viewsets.ModelViewSet):
+#     """ViewSet списка покупок в PDF."""
 
-    def get_recipe(self):
-        return get_object_or_404(Recipe, pk=self.kwargs.get("recipe_pk"))
+#     queryset = Recipe.objects.filter(
+#         is_in_shopping_cart=True
+#     ).all().order_by('name')
 
-    def get_queryset(self):
-        return self.get_recipe()
-
-
-class FavoriteViewSet(FavoriteShoppingCartBaseModelViewSet):
-    """ViewSet избранного рецепта."""
-
-    serializer_class = FavoriteSerializer
-    # permission_classes = (IsAuthorizedOrReadOnly, )
-
-    def perform_create(self, serializer):
-        recipe = self.get_recipe()
-        recipe.is_favorited = True
-        serializer.save(recipe=recipe)
-
-
-class DownloadShoppingCartViewSet(viewsets.ModelViewSet):
-    """ViewSet списка покупок в PDF."""
-
-    queryset = Recipe.objects.filter(
-        is_in_shopping_cart=True
-    ).all().order_by('name')
-
-    @action(detail=True,
-            permission_classes=(IsAuthenticated, ),
-            methods=['get'],
-            url_path=DOWNLOAD_SHOPPING_CART)
-    def fetch_report(self, request, *args, **kwargs):
-        short_report = open("PdfFile", 'rb')
-        response = HttpResponse(
-            FileWrapper(short_report),
-            content_type='application/pdf'
-        )
-        return response
-
-
-class ShoppingCartViewSet(FavoriteShoppingCartBaseModelViewSet):
-    """ViewSet списка покупок."""
-
-    serializer_class = ShoppingCartSerializer
-    # permission_classes = (IsAuthorizedOrReadOnly, )
-
-    def perform_create(self, serializer):
-        recipe = self.get_recipe()
-        recipe.is_in_shopping_cart = True
-        serializer.save(recipe=recipe)
+#     @action(detail=True,
+#             permission_classes=(IsAuthenticated, ),
+#             methods=['get'],
+#             url_path=DOWNLOAD_SHOPPING_CART)
+#     def fetch_report(self, request, *args, **kwargs):
+#         short_report = open("PdfFile", 'rb')
+#         response = HttpResponse(
+#             FileWrapper(short_report),
+#             content_type='application/pdf'
+#         )
+#         return response
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
