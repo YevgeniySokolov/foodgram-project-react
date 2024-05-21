@@ -1,13 +1,10 @@
-from djoser.conf import settings
-
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from djoser.views import UserViewSet
 
 from users.models import User, Subscription
-from foodgram.constants import PROHIBITED_USERNAME, SET_PASSWORD
 from .serializers import SubscriptionSerializer
 from api.paginations import LimitPageNumberPagination
 
@@ -31,8 +28,8 @@ class CustomUserViewSet(UserViewSet):
             return self.destroy(request, *args, **kwargs)
 
     @action(
-       detail=True, permission_classes=(IsAuthenticated, ),
-       methods=['post', 'delete'], pagination_class=None,
+        detail=True, permission_classes=(IsAuthenticated, ),
+        methods=['post', 'delete'], pagination_class=None,
     )
     def subscribe(self, request, id):
         if not User.objects.filter(pk=id).exists():

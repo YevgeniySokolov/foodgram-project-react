@@ -3,7 +3,6 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.http import HttpResponse
-from wsgiref.util import FileWrapper
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -14,7 +13,6 @@ from recipes.models import (
     FavoriteRecipe,
     IngredientAmount
 )
-from foodgram.constants import DOWNLOAD_SHOPPING_CART
 from api.filters import RecipeFilter, IngredientFilter
 from api.paginations import LimitPageNumberPagination
 from .permissions import UserIsAuthor

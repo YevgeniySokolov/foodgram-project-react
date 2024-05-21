@@ -12,7 +12,7 @@ from recipes.models import (
     IngredientAmount,
     FavoriteRecipe,
     ShoppingCart
-    )
+)
 
 
 class AuthorSerializer(UserSerializer):
@@ -57,8 +57,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
-        # validators=[UniqueValidator(queryset=Ingredient.objects.all())]
-        )
+    )
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
