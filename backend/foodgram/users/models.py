@@ -1,11 +1,12 @@
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.template.defaultfilters import truncatechars
 
-from foodgram.constants import FIELD_EMAIL_LEN, FIELD_NAMES_LEN
+from foodgram.constants import (
+    FIELD_EMAIL_LEN,
+    FIELD_NAMES_LEN,
+    DEFAULT_TRUNCATE
+)
 from .validators import prohibited_username_validator, regex_validator
 
 
@@ -38,7 +39,7 @@ class User(AbstractUser):
         ]
 
     def __str__(self):
-        return self.username
+        return truncatechars(self.username, DEFAULT_TRUNCATE)
 
 
 class Subscription(models.Model):
@@ -50,3 +51,10 @@ class Subscription(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='authors'
     )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.subscriber} подписан на {self.author}'

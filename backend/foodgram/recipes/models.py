@@ -1,8 +1,9 @@
 from colorfield.fields import ColorField
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.template.defaultfilters import truncatechars
 
-from foodgram.constants import MAX_LENGTH_NAME, TEXT_LENGTH
+from foodgram.constants import MAX_LENGTH_NAME, TEXT_LENGTH, DEFAULT_TRUNCATE
 from users.models import User
 
 
@@ -25,11 +26,12 @@ class Tag(models.Model):
 
     class Meta:
         verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
         ordering = ('name',)
         default_related_name = 'tags'
 
     def __str__(self):
-        return self.slug
+        return truncatechars(self.name, DEFAULT_TRUNCATE)
 
 
 class Ingredient(models.Model):
@@ -44,8 +46,13 @@ class Ingredient(models.Model):
         verbose_name='Единицы измерения'
     )
 
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
+
     def __str__(self):
-        return self.name
+        return truncatechars(self.name, DEFAULT_TRUNCATE)
 
 
 class Recipe(models.Model):
@@ -85,13 +92,8 @@ class Recipe(models.Model):
 
     class Meta:
         verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
         ordering = ['-pub_date', ]
-        # constraints = [
-        #     models.UniqueConstraint(
-        #         fields=['ingredients'],
-        #         name='unique_ingredients'
-        #     ),
-        # ]
         default_related_name = 'recipes'
 
     def __str__(self):
@@ -114,7 +116,6 @@ class IngredientAmount(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Ингредиент для рецепта'
         default_related_name = 'ingredientamounts'
         constraints = [
             models.UniqueConstraint(

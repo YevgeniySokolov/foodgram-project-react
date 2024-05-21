@@ -7,3 +7,4 @@ FROM_EMAIL = 'from@foodgram.ru'
 MESSAGE_NO_PERMISSION = 'You lack rights to perform this action.'
 DOWNLOAD_SHOPPING_CART = 'download_shopping_cart'
 SET_PASSWORD = 'set_password'
+DEFAULT_TRUNCATE = 25
