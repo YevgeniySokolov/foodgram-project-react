@@ -34,6 +34,9 @@ jobs:
         pip install flake8==6.0.0
         pip install -r ./backend/requirements.txt
 
+    - name: Copy .env file
+      run: cp .env.example backend/.env
+
     - name: Test with flake8 and django tests
       env:
         POSTGRES_USER: django_user
