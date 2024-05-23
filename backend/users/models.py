@@ -30,6 +30,9 @@ class User(AbstractUser):
         'Last Name', blank=True, max_length=FIELD_NAMES_LEN
     )
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -55,6 +58,7 @@ class Subscription(models.Model):
     )
 
     class Meta:
+        unique_together = ('subscriber', 'author')
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
 
