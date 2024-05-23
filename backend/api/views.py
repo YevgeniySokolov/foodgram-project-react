@@ -68,24 +68,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    @action(detail=True, methods=('POST', 'DELETE'),
-            permission_classes=(IsAuthenticated, ),)
+    @action(detail=True, methods=('POST', ),
+            permission_classes=(IsAuthenticated, ), )
     def favorite(self, request, pk=None):
-        if request.method == 'POST':
-            return self.create_object(
-                FavoriteRecipe, request.user, pk
-            )
+        return self.create_object(
+            FavoriteRecipe, request.user, pk
+        )
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk=None):
         return self.delete_object(
             FavoriteRecipe, request.user, pk
         )
 
-    @action(detail=True, methods=('POST', 'DELETE'),
+    @action(detail=True, methods=('POST', ),
             permission_classes=(IsAuthenticated, ),)
     def shopping_cart(self, request, pk=None):
-        if request.method == 'POST':
-            return self.create_object(
-                ShoppingCart, request.user, pk
-            )
+        return self.create_object(
+            ShoppingCart, request.user, pk
+        )
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk=None):
         return self.delete_object(
             ShoppingCart, request.user, pk
         )
