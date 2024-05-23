@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -33,20 +34,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     pagination_class = LimitPageNumberPagination
     http_method_names = ['get', 'post', 'patch', 'delete']
+    permission_classes = (UserIsAuthor, )
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return ReadRecipeSerializer
         return WriteRecipeSerializer
-
-    def get_permissions(self):
-        if self.action == "create":
-            self.permission_classes = (IsAuthenticated, )
-        if self.action == "partial_update":
-            self.permission_classes = (UserIsAuthor, )
-        if self.action == "destroy":
-            self.permission_classes = (UserIsAuthor, )
-        return super().get_permissions()
 
     def create_object(self, model, user, pk):
         if not Recipe.objects.filter(id=pk).exists():
@@ -65,11 +58,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_object(self, model, user, pk):
-        if not Recipe.objects.filter(id=pk).exists():
-            return Response(
-                {'errors': 'Рецепт не существует.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        get_object_or_404(Recipe, pk=pk)
         object = model.objects.filter(user=user, recipe__id=pk)
         if object.exists():
             object.delete()
