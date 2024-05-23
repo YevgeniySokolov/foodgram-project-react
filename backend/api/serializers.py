@@ -162,6 +162,15 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
         return check_recipe(self, recipe, FavoriteRecipe)
 
 
+def create_ingredient(recipe, ingredients):
+    for ingredient in ingredients:
+        IngredientAmount.objects.create(
+            ingredient=ingredient['id'],
+            recipe=recipe,
+            amount=ingredient['amount']
+        )
+
+
 class WriteRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для записи рецептов."""
 
@@ -180,16 +189,23 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
         ingredients = data.get('ingredients')
         tags = data.get('tags')
         if not ingredients:
-            raise serializers.ValidationError('Ingredients обязательное поле.')
+            raise serializers.ValidationError(
+                {'ingredients': 'обязательное поле.'}
+            )
         ingredients_ids = []
         for ingredient in data['ingredients']:
             ingredients_ids.append(ingredient['id'])
         if len(ingredients_ids) != len(set(ingredients_ids)):
-            raise serializers.ValidationError('Повторяющееся поле ingredient.')
+            raise serializers.ValidationError(
+                {'ingredients': 'повторяющееся поле.'})
         if not tags:
-            raise serializers.ValidationError('Tags обязательное поле.')
+            raise serializers.ValidationError(
+                {'tags': 'обязательное поле.'}
+            )
         if len(data['tags']) != len(set(data['tags'])):
-            raise serializers.ValidationError('Повторяющееся поле ingredient.')
+            raise serializers.ValidationError(
+                {'ingredients': 'повторяющееся поле.'}
+            )
         return super().validate(data)
 
     class Meta:
@@ -209,11 +225,7 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
         recipe.tags.clear()
         recipe.ingredients.clear()
         recipe.tags.set(tags_ids)
-        for ingredient in ingredients:
-            IngredientAmount.objects.create(
-                ingredient=ingredient['id'],
-                recipe=recipe,
-                amount=ingredient['amount'])
+        create_ingredient(recipe, ingredients)
         return super().update(recipe, validated_data)
 
     def create(self, validated_data, **kwargs):
@@ -223,11 +235,7 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
             author=self.context['request'].user, **validated_data
         )
         recipe.tags.set(tags_ids)
-        for ingredient in ingredients:
-            IngredientAmount.objects.create(
-                ingredient=ingredient['id'],
-                recipe=recipe,
-                amount=ingredient['amount'])
+        create_ingredient(recipe, ingredients)
         return recipe
 
     def to_representation(self, recipe):
