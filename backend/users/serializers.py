@@ -1,11 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from rest_framework.validators import UniqueTogetherValidator
 from djoser.serializers import UserSerializer
 
 from .models import Subscription
-from .validators import prohibited_username_validator, regex_validator
-from foodgram.constants import FIELD_NAMES_LEN, FIELD_EMAIL_LEN
 from api.serializers import ReadShortRecipeSerializer, ReadRecipeSerializer
 
 User = get_user_model()
