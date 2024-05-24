@@ -24,6 +24,7 @@ class IngredientAmountInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     readonly_fields = ('count_in_favorite',)
+    inlines = (IngredientAmountInline)
     list_display = (
         'name', 'author', 'image', 'text',
         'cooking_time', 'count_in_favorite'
