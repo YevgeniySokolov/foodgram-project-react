@@ -1,5 +1,5 @@
-# # Foodgram - продуктовый помощник
-![Foodgram CI](https://github.com/4its/foodgram-project-react/actions/workflows/main.yml/badge.svg) \
+# Foodgram - продуктовый помощник
+![Foodgram CI](https://github.com/yevgeniysokolov/foodgram-project-react/actions/workflows/main.yml/badge.svg) \
 «Фудграм» — сайт, на котором пользователи могут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Пользователям сайта также доступен сервис «Список покупок». Он позволяет создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
 
 ## Стэк используемых технологий
@@ -19,18 +19,18 @@
     mkdir foodgram && cd foodgram
     ```
 
-    В папку проекта копируем (или создаём) файлы `docker-compose.production.yml` `nginx.conf` из папки `infra`. Также необходим файл `.env` (пример ниже). Запускаем проект командой:
+    В папку проекта копируем (или создаём) файлы `docker-compose.production.yml`, `nginx.conf` из папки `infra`. Также необходим файл `.env` (пример ниже). Запускаем проект командой:
 
     ```bash
     sudo docker compose -f docker-compose.production.yml up
     ```
 
     Будут загружены последние образы, созданы и запущены контейнеры, созданы необходимые тома и сеть.
-* ### Разворачиваем используя GitHUB
+* ### Разворачиваем, используя GitHUB
     Клонируем себе репозиторий и переходим в него: 
 
     ```bash 
-    git clone git@github.com:4its/foodgram-project-react.git
+    git clone git@github.com:yevgeniysokolov/foodgram-project-react.git
     ```
 
     Выполняем запуск:
@@ -58,27 +58,22 @@
     ```bash
     DEBUG=True
     SECRET_KEY=CHANGE_IT_BEFORE_USE_IN_PRODUCTION
-    ALLOWED_HOSTS=localhost,127.0.0.1,YOUR.DOMAIN,
-    LANGUAGE_CODE=ru-RU
-    TIME_ZONE=Europe/Moscow
+    ALLOWED_HOSTS=localhost 127.0.0.1 YOUR.DOMAIN
     
-    # Database settings block
-    USE_SQLITE=     True/False(whatever else you want to)
-    POSTGRES_DB=    NAME OF YOUR DB
-    POSTGRES_DB_HOST= NAME OF YOUR DB HOST (ex. 127.0.0.1 or db)
-    POSTGRES_DB_PORT= PORT TO ACCESS DB
-    POSTGRES_PASSWORD= YOUR DB PASSWORD
-    POSTGRES_USER= YOUR DB USER
+    USE_SQLITE=True/False(whatever else you want to)
+    
+    POSTGRES_DB=NAME_OF_YOUR_DB
+    DB_HOST=NAME_OF_YOUR_DB_HOST (ex. 127.0.0.1 or db)
+    DB_PORT=PORT_TO_ACCESS_DB
+    POSTGRES_PASSWORD=YOUR_DB_PASSWORD
+    POSTGRES_USER=YOUR_DB_USER
     ```
 ## Документация API проекта
-  После запуска проекта, можно ознакопиться с endpoint'ами прокта и их возможностями.
+  После запуска проекта, можно ознакомиться с endpoint'ами проекта и их возможностями.
   Документация будет доступна по адресу: `имя_сервера/api/docs/` \
-  Пример: **https://foodgram.egiazaryan.ru/api/docs/** (кликабельно, можно ознакомиться)
+  Пример: **https://domain4study.ddns.net/api/docs/** (кликабельно, можно ознакомиться)
   
 
 
-## Автор backend части
-* [**Goerge Egiazaryan**](https://github.com/4its)
-
-## Проект доступен в сети интернет: 
-* **https://foodgram.egiazaryan.ru**
+## Автор backend-части, в т. ч. API, а также процесса CI/CD
+* [**Yevgeniy Sokolov**](https://github.com/yevgeniysokolov)

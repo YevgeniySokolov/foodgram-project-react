@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from .models import Tag, Recipe, Ingredient, ShoppingCart, FavoriteRecipe
+from .models import (
+    Tag, Recipe, Ingredient, ShoppingCart, FavoriteRecipe, IngredientAmount
+)
+from foodgram.constants import MIN_VALUE
 
 
 @admin.register(Tag)
@@ -11,6 +14,11 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
+
+
+class IngredientAmountInline(admin.TabularInline):
+    model = IngredientAmount
+    min_num = MIN_VALUE
 
 
 @admin.register(Recipe)
