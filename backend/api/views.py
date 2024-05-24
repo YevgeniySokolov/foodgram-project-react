@@ -18,7 +18,8 @@ from api.filters import RecipeFilter, IngredientFilter
 from api.paginations import LimitPageNumberPagination
 from .permissions import UserIsAuthor
 from .serializers import (
-    ReadShortRecipeSerializer,
+    WriteFavoriteRecipeSerializer,
+    WriteShoppingCartRecipeSerializer,
     ReadRecipeSerializer,
     WriteRecipeSerializer,
     TagSerializer,
@@ -41,20 +42,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return ReadRecipeSerializer
         return WriteRecipeSerializer
 
-    def create_object(self, model, user, pk):
-        if not Recipe.objects.filter(id=pk).exists():
-            return Response(
-                {'errors': 'Рецепт не существует.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        if model.objects.filter(user=user, recipe__id=pk).exists():
-            return Response(
-                {'errors': 'Рецепт уже в списке.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        recipe = Recipe.objects.get(pk=pk)
-        model.objects.create(user=user, recipe=recipe)
-        serializer = ReadShortRecipeSerializer(recipe)
+    def create_object(self, serial, request, pk):
+        serializer = serial(
+            data={'recipe': pk, 'user': request.user.pk},
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete_object(self, model, user, pk):
@@ -72,7 +66,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(IsAuthenticated, ), )
     def favorite(self, request, pk=None):
         return self.create_object(
-            FavoriteRecipe, request.user, pk
+            WriteFavoriteRecipeSerializer, request, pk
         )
 
     @favorite.mapping.delete
@@ -85,7 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(IsAuthenticated, ),)
     def shopping_cart(self, request, pk=None):
         return self.create_object(
-            ShoppingCart, request.user, pk
+            WriteShoppingCartRecipeSerializer, request, pk
         )
 
     @shopping_cart.mapping.delete

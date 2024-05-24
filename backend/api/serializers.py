@@ -256,7 +256,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
-    """Сериализатор для избранного рецепта."""
+    """Сериализатор для корзины покупок."""
 
     class Meta:
         model = Recipe
@@ -266,3 +266,50 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
             'image',
             'cooking_time',
         )
+
+
+class BaseWriteFavoriteShoppingCart(serializers.ModelSerializer):
+    """Базовый сериализатор для записи избранного рецепта и корзины покупок."""
+
+    def validate(self, data):
+        if not Recipe.objects.filter(id=data['recipe'].pk).exists():
+            raise serializers.ValidationError('Рецепта не существует.')
+        return data
+
+    def to_representation(self, instance):
+        return ReadShortRecipeSerializer(
+            instance.recipe,
+            context=self.context
+        ).data
+
+
+class WriteFavoriteRecipeSerializer(BaseWriteFavoriteShoppingCart):
+    """Сериализатор записи для избранного рецепта."""
+
+    class Meta:
+        model = FavoriteRecipe
+        fields = ('recipe', 'user')
+
+    def validate(self, data):
+        data = super().validate(data)
+        if data['user'].favoriterecipes.filter(recipe=data['recipe']).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже добавлен в избранное.'
+            )
+        return data
+
+
+class WriteShoppingCartRecipeSerializer(BaseWriteFavoriteShoppingCart):
+    """Сериализатор для записи корзины покупок."""
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('recipe', 'user')
+
+    def validate(self, data):
+        data = super().validate(data)
+        if data['user'].shoppingcarts.filter(recipe=data['recipe']).exists():
+            raise serializers.ValidationError(
+                'Рецепт уже добавлен в корзину покупок.'
+            )
+        return data
