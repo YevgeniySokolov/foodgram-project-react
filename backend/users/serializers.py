@@ -9,7 +9,7 @@ from api.serializers import ReadShortRecipeSerializer, ReadRecipeSerializer
 User = get_user_model()
 
 
-class CustomUserSerializer(UserSerializer):
+class FoodgramUserSerializer(UserSerializer):
 
     is_subscribed = serializers.SerializerMethodField()
 

@@ -176,9 +176,8 @@ EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 DJOSER = {
     'SERIALIZERS': {
-        # 'user_create': 'users.serializers.CustomUserCreateSerializer',
-        'user': 'users.serializers.CustomUserSerializer',
-        'current_user': 'users.serializers.CustomUserSerializer',
+        'user': 'users.serializers.FoodgramUserSerializer',
+        'current_user': 'users.serializers.FoodgramUserSerializer',
     },
     'LOGIN_FIELD': 'email',
     'PERMISSIONS': {

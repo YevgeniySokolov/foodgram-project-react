@@ -3,13 +3,14 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from djoser.views import UserViewSet
+from django.shortcuts import get_object_or_404
 
 from users.models import User, Subscription
 from .serializers import SubscriptionSerializer
 from api.paginations import LimitPageNumberPagination
 
 
-class CustomUserViewSet(UserViewSet):
+class FoodgramUserViewSet(UserViewSet):
     """ViewSet пользователя."""
 
     @action(
@@ -32,11 +33,7 @@ class CustomUserViewSet(UserViewSet):
         methods=['post', 'delete'], pagination_class=None,
     )
     def subscribe(self, request, id):
-        if not User.objects.filter(pk=id).exists():
-            return Response(
-                {'error': f'Пользователь с ID:{id} не существует.'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        get_object_or_404(User, pk=id)
         author = User.objects.get(pk=id)
         subscriber = request.user
         if request.method == 'POST':
