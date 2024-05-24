@@ -28,7 +28,6 @@ class Tag(models.Model):
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
         ordering = ('name',)
-        default_related_name = 'tags'
 
     def __str__(self):
         return truncatechars(self.name, DEFAULT_TRUNCATE)
@@ -50,6 +49,12 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient',
+            ),
+        ]
 
     def __str__(self):
         return truncatechars(self.name, DEFAULT_TRUNCATE)
@@ -128,39 +133,40 @@ class IngredientAmount(models.Model):
         ]
 
 
-class ShoppingCart(models.Model):
-    """"Корзина покупок."""
-
-    recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, verbose_name='Рецепт'
-    )
+class ShoppingCartFavoriteBaseModel(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name='Пользователь'
     )
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, verbose_name='Рецепт'
+    )
 
     class Meta:
-        default_related_name = 'shoppingcarts'
+        abstract = True
+        default_related_name = '%(class)ss'
+        ordering = ('-recipe__pub_date',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'recipe'),
+                name='unique_%(class)s',
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.user} добавил: {self.recipe}'
+
+
+class ShoppingCart(ShoppingCartFavoriteBaseModel):
+    """"Корзина покупок."""
+
+    class Meta(ShoppingCartFavoriteBaseModel.Meta):
         verbose_name = 'Корзина покупок'
         verbose_name_plural = verbose_name
 
-    def __str__(self):
-        return f'{self.user} добавил: {self.recipe}'
 
-
-class FavoriteRecipe(models.Model):
+class FavoriteRecipe(ShoppingCartFavoriteBaseModel):
     """"Избранный рецепт."""
 
-    recipe = models.ForeignKey(
-        Recipe, on_delete=models.CASCADE, verbose_name='Рецепт'
-    )
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name='Пользователь'
-    )
-
-    class Meta:
-        default_related_name = 'favoriterecipes'
+    class Meta(ShoppingCartFavoriteBaseModel.Meta):
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
-
-    def __str__(self):
-        return f'{self.user} добавил: {self.recipe}'
