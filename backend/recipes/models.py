@@ -125,6 +125,8 @@ class IngredientAmount(models.Model):
 
     class Meta:
         default_related_name = 'ingredientamounts'
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],

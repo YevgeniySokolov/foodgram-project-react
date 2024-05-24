@@ -6,9 +6,19 @@ from .models import User, Subscription
 
 @admin.register(User)
 class UserAdmin(BaseAdmin):
-    list_display = ('id', 'username', 'email', 'first_name', 'last_name')
-
+    readonly_fields = ('subscribers_count', 'recipes_count')
+    list_display = (
+        'id', 'username', 'email', 'first_name', 'last_name'
+    ) + readonly_fields
     list_filter = ('email', 'username')
+
+    @admin.display(description='Кол-во подписчиков')
+    def subscribers_count(self, user):
+        return user.authors.count()
+
+    @admin.display(description='Кол-во рецептов')
+    def recipes_count(self, user):
+        return user.recipes.count()
 
 
 @admin.register(Subscription)
