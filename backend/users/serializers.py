@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserSerializer
 
 from .models import Subscription
 from .validators import prohibited_username_validator, regex_validator
@@ -11,59 +11,8 @@ from api.serializers import ReadShortRecipeSerializer, ReadRecipeSerializer
 User = get_user_model()
 
 
-class CustomUserCreateSerializer(UserCreateSerializer):
-
-    email = serializers.EmailField(
-        required=True, max_length=FIELD_EMAIL_LEN
-    )
-    username = serializers.CharField(
-        validators=[
-            regex_validator, prohibited_username_validator,
-            UniqueValidator(queryset=User.objects.all())
-        ],
-        required=True, max_length=FIELD_NAMES_LEN
-    )
-    first_name = serializers.CharField(
-        required=True, max_length=FIELD_NAMES_LEN
-    )
-    last_name = serializers.CharField(
-        required=True, max_length=FIELD_NAMES_LEN
-    )
-    password = serializers.CharField(
-        required=True, max_length=FIELD_NAMES_LEN,
-        write_only=True
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'password'
-        )
-
-
 class CustomUserSerializer(UserSerializer):
 
-    email = serializers.EmailField(
-        max_length=FIELD_EMAIL_LEN
-    )
-    username = serializers.CharField(
-        validators=[
-            regex_validator, prohibited_username_validator,
-            UniqueValidator(queryset=User.objects.all())
-        ],
-        required=True, max_length=FIELD_NAMES_LEN
-    )
-    first_name = serializers.CharField(
-        max_length=FIELD_NAMES_LEN
-    )
-    last_name = serializers.CharField(
-        max_length=FIELD_NAMES_LEN
-    )
     is_subscribed = serializers.SerializerMethodField()
 
     def get_is_subscribed(self, obj):
@@ -152,13 +101,3 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return Subscription.objects.filter(
             subscriber=subscriber, author=author
         ).exists()
-
-
-class SetPasswordSerializer(serializers.Serializer):
-    """Сериализатор изменения пароля."""
-
-    current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-    class Meta:
-        model = User

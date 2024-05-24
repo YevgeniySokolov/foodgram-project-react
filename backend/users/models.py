@@ -24,10 +24,10 @@ class User(AbstractUser):
         'E-mail address', unique=True, blank=False, max_length=FIELD_EMAIL_LEN
     )
     first_name = models.CharField(
-        'First Name', blank=True, max_length=FIELD_NAMES_LEN
+        'First Name', max_length=FIELD_NAMES_LEN
     )
     last_name = models.CharField(
-        'Last Name', blank=True, max_length=FIELD_NAMES_LEN
+        'Last Name', max_length=FIELD_NAMES_LEN
     )
 
     USERNAME_FIELD = 'email'
