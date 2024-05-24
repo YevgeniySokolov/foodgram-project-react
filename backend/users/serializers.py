@@ -34,28 +34,6 @@ class FoodgramUserSerializer(UserSerializer):
         )
 
 
-class SubscriptionsSerializer(serializers.ModelSerializer):
-    """Сериализатор списка подписок."""
-
-    recipes = ReadRecipeSerializer(
-        read_only=True,
-        many=True
-    )
-
-    class Meta:
-        model = User
-        fields = (
-            'email',
-            'id',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
-        )
-
-
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Сериализатор подписки."""
 
@@ -99,3 +77,25 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         return Subscription.objects.filter(
             subscriber=subscriber, author=author
         ).exists()
+
+
+class WriteSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ('subscriber', 'author',)
+
+    def validate(self, data):
+        subscriber, author = data['subscriber'], data['author']
+        if subscriber == author:
+            raise serializers.ValidationError('Нельзя подписаться на себя.')
+        if subscriber.subscribers.filter(author=author).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны на этого пользователя.'
+            )
+        return data
+
+    def to_representation(self, instance):
+        return SubscriptionSerializer(
+            instance.author,
+            context=self.context
+        ).data
