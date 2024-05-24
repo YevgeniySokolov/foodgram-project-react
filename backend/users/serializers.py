@@ -4,7 +4,7 @@ from rest_framework.validators import UniqueTogetherValidator
 from djoser.serializers import UserSerializer
 
 from .models import Subscription
-from api.serializers import ReadShortRecipeSerializer, ReadRecipeSerializer
+from api.serializers import ReadShortRecipeSerializer
 
 User = get_user_model()
 

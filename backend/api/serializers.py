@@ -57,6 +57,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
+        source='ingredient'
     )
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -165,7 +166,7 @@ class ReadRecipeSerializer(serializers.ModelSerializer):
 def create_ingredient(recipe, ingredients):
     for ingredient in ingredients:
         IngredientAmount.objects.create(
-            ingredient=ingredient['id'],
+            ingredient=ingredient['ingredient'],
             recipe=recipe,
             amount=ingredient['amount']
         )
@@ -192,9 +193,7 @@ class WriteRecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'ingredients': 'обязательное поле.'}
             )
-        ingredients_ids = []
-        for ingredient in data['ingredients']:
-            ingredients_ids.append(ingredient['id'])
+        ingredients_ids = [item['ingredient'].id for item in ingredients]
         if len(ingredients_ids) != len(set(ingredients_ids)):
             raise serializers.ValidationError(
                 {'ingredients': 'повторяющееся поле.'})
